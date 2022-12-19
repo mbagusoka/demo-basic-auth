@@ -1,5 +1,8 @@
 package com.example.user.service;
 
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -36,11 +39,11 @@ public class UserDto {
         return new UserDto(user.getId(), user.getName(), user.getUsername(), null);
     }
 
-    User toEntity(String encryptedPassword) {
+    User toEntity(UnaryOperator<String> encryptFunc) {
         return User.builder()
             .name(name)
             .username(username)
-            .password(encryptedPassword)
+            .password(encryptFunc.apply(password))
             .build();
     }
 }

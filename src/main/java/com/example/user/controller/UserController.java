@@ -1,5 +1,7 @@
 package com.example.user.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.user.service.UserDto;
+import com.example.user.service.UserDtoList;
 import com.example.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -18,14 +21,6 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
-
-    // bottom up approach ->
-    // 1. entity, repo
-    // 2. business logic -> service
-    // 3. expose API -> controller
-    // 4. set up security -> security config & main auth provider
-
-    // DOMAIN DRIVEN DESIGN
 
     private final UserService userService;
 
@@ -47,5 +42,16 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto findById(@PathVariable Long id) {
         return userService.findById(id);
+    }
+
+    @GetMapping
+    public List<UserDto> findAll() {
+        return userService.findAll();
+    }
+
+    @PostMapping("/register-bulk")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDtoList registerBulk(@RequestBody UserDtoList userDtos) {
+        return userService.registerBulk(userDtos);
     }
 }

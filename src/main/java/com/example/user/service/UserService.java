@@ -1,5 +1,7 @@
 package com.example.user.service;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 public interface UserService {
@@ -9,4 +11,8 @@ public interface UserService {
     boolean isUserValidLogin(UserDto userDto);
 
     UserDto findById(Long id);
+
+    List<UserDto> findAll();
+
+    UserDtoList registerBulk(UserDtoList userDtos);
 }

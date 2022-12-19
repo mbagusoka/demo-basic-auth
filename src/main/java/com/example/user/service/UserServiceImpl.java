@@ -1,9 +1,13 @@
 package com.example.user.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import com.example.user.persistence.User;
@@ -20,6 +24,7 @@ class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public UserDto registerUser(@Valid UserDto userDto) {
         validateUserExist(userDto.getUsername());
         User user = saveUser(userDto);
@@ -42,10 +47,26 @@ class UserServiceImpl implements UserService {
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
-    private User saveUser(UserDto userDto) {
-        String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
+    @Override
+    public List<UserDto> findAll() {
+        return userRepository.findAll()
+            .stream()
+            .map(UserDto::fromUser)
+            .collect(Collectors.toList());
+    }
 
-        return userRepository.save(userDto.toEntity(encryptedPassword));
+    @Override
+    @Transactional
+    public UserDtoList registerBulk(UserDtoList userDtos) {
+        userDtos.getUsers()
+            .forEach(userDto -> validateUserExist(userDto.getUsername()));
+        List<User> users = userRepository.saveAll(userDtos.toUsers(passwordEncoder::encode));
+
+        return UserDtoList.fromUsers(users);
+    }
+
+    private User saveUser(UserDto userDto) {
+        return userRepository.save(userDto.toEntity(passwordEncoder::encode));
     }
 
     private void validateUserExist(String username) {
